@@ -8,18 +8,36 @@
     <style>
       @font-face {
         font-family: "FoodBuka";
-        src: url("assets/fonts/FoodBuka.woff2") format("woff2");
+        src: url("")
+          format("woff2");
         font-weight: normal;
         font-style: normal;
       }
       @font-face {
+        font-family: "AuthorMedium";
+src: url()
+          format("truetype");
+        font-weight: normal;
+      }
+      @font-face {
+        font-family: "AuthorMedium";
+          src: url()
+        format("truetype");
+        font-weight: normal;
+      }
+      @font-face {
+        font-family: "AuthorMedium";
+          format("truetype");
+        font-weight: normal;
+      }
+      @font-face {
         font-family: "Cairo";
-        src: url("assets/fonts/Cairo-Regular.ttf") format("truetype");
+          format("truetype");
         font-weight: 400;
       }
       @font-face {
         font-family: "Cairo";
-        src: url("assets/fonts/Cairo-Bold.ttf") format("truetype");
+          format("truetype");
         font-weight: 700;
       }
 
@@ -531,7 +549,6 @@
     <nav class="nav">
       <img
         class="nav-logo"
-        src="assets/images/logo.png"
         alt="Patty's Smash Burger"
       />
       <div class="header-actions">
@@ -608,7 +625,6 @@
     <footer>
       <img
         class="footer-logo"
-        src="assets/images/logo.png"
         alt="Patty's Smash Burger"
       />
       <div class="footer-copy">© Patty's Smash Burger 2026</div>
@@ -728,8 +744,7 @@
         playCanceledSound();
         showCancelToast();
       }
-      const READY_SOUND_SRC = "assets/sounds/ready.mp3";
-
+      const READY_SOUND_SRC =
       function getReadyAudio() {
         if (!readyAudio) {
           readyAudio = new Audio(READY_SOUND_SRC);
