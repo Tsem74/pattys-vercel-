@@ -526,6 +526,9 @@
         box-shadow: 0 4px 0 var(--mustard-dark);
         letter-spacing: 0.03em;
       }
+      .menu-btn.hidden {
+        display: none;
+      }
       .menu-btn:hover {
         transform: scale(1.03);
         box-shadow: 0 6px 0 var(--mustard-dark);
@@ -1108,6 +1111,7 @@
         isTerminal = false;
         document.getElementById("notFound").classList.remove("visible");
         document.getElementById("trackerCard").classList.remove("visible");
+        document.getElementById("welcomeMenuBtn").classList.add("hidden");
         document.getElementById("spinner").classList.add("visible");
         clearInterval(pollInterval);
         clearInterval(timerInterval);
@@ -1120,6 +1124,7 @@
             document.getElementById("errSub").textContent =
               dict[currentLang].errSub;
             document.getElementById("notFound").classList.add("visible");
+            document.getElementById("welcomeMenuBtn").classList.remove("hidden");
             return;
           }
           currentOrder = num;
