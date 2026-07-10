@@ -622,6 +622,7 @@
             >Double-check your number or ask a staff member.</span
           >
         </div>
+        <a href="menu.html" class="menu-btn" id="welcomeMenuBtn">View Full Menu</a>
       </div>
       <div class="tracker-card" id="trackerCard">
         <div class="order-header">
@@ -714,6 +715,7 @@
           statusPrep: "Your order is being smashed and prepared right now!",
           statusReady: "🎉 Your order is hot and ready! Come to the counter.",
           lblUpdated: "Last updated:",
+          menuBtn: "View Full Menu",
           cancelTitle: "Order Canceled",
           cancelSub: "This order has been canceled by the staff.",
         },
@@ -737,6 +739,7 @@
           statusReady:
             "🎉 Votre commande est prête ! Présentez-vous au comptoir.",
           lblUpdated: "Dernière mise à jour :",
+          menuBtn: "Voir le Menu Complet",
           cancelTitle: "Commande Annulée",
           cancelSub: "Cette commande a été annulée par le personnel.",
         },
@@ -759,6 +762,7 @@
           statusPrep: "طلبك قيد التحضير الآن!",
           statusReady: "🎉 طلبك جاهز وساخن! تفضل إلى الكاونتر.",
           lblUpdated: "آخر تحديث:",
+          menuBtn: "عرض القائمة الكاملة",
           cancelTitle: "تم إلغاء الطلب",
           cancelSub: "تم إلغاء هذا الطلب من قبل الموظفين.",
         },
@@ -775,6 +779,8 @@
         document.getElementById("lblPreparing").textContent = d.lblPrep;
         document.getElementById("lblReady").textContent = d.lblReady;
         document.getElementById("lblLastUpdated").textContent = d.lblUpdated;
+        document.getElementById("welcomeMenuBtn").textContent = d.menuBtn;
+        document.querySelector(".tracker-card .menu-btn").textContent = d.menuBtn;
         updateTimerLabel();
         if (prevStatus) updateUI(prevStatus);
       }
