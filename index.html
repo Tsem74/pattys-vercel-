@@ -688,6 +688,7 @@
 
       let currentOrder = null,
         pollInterval = null,
+        currentTicketId = null,
         prevStatus = null,
         timerInterval = null,
         isTimerFrozen = false,
@@ -1007,13 +1008,16 @@
         )
           audioCtx.resume();
       });
-      async function fetchOrderRecord(num) {
+      async function fetchOrderRecord(num, ticketId) {
         const h = {
           apikey: SUPABASE_KEY,
           Authorization: "Bearer " + SUPABASE_KEY,
         };
+        const liveFilter = ticketId
+          ? `ticket_id=eq.${encodeURIComponent(ticketId)}`
+          : `order_number=eq.${encodeURIComponent(num)}`;
         const lr = await fetch(
-          `${SUPABASE_URL}/rest/v1/live_orders?order_number=eq.${encodeURIComponent(num)}&select=status,created_at,updated_at`,
+          `${SUPABASE_URL}/rest/v1/live_orders?${liveFilter}&select=status,created_at,updated_at,ticket_id`,
           { headers: h },
         );
         const ld = await lr.json();
@@ -1027,8 +1031,11 @@
               : null;
           return r;
         }
+        const completedFilter = ticketId
+          ? `ticket_id=eq.${encodeURIComponent(ticketId)}`
+          : `order_number=eq.${encodeURIComponent(num)}`;
         const cr = await fetch(
-          `${SUPABASE_URL}/rest/v1/completed_orders?order_number=eq.${encodeURIComponent(num)}&select=created_at,completed_at`,
+          `${SUPABASE_URL}/rest/v1/completed_orders?${completedFilter}&select=created_at,completed_at,ticket_id`,
           { headers: h },
         );
         const cd = await cr.json();
@@ -1040,6 +1047,7 @@
             status: "Ready",
             created_at: cd[0].created_at,
             updated_at: cd[0].completed_at,
+            ticket_id: cd[0].ticket_id,
           };
         }
         return null;
@@ -1109,6 +1117,7 @@
         const num = document.getElementById("orderInput").value.trim();
         if (!num) return;
         isTerminal = false;
+        currentTicketId = null;
         document.getElementById("notFound").classList.remove("visible");
         document.getElementById("trackerCard").classList.remove("visible");
         document.getElementById("welcomeMenuBtn").classList.add("hidden");
@@ -1128,6 +1137,7 @@
             return;
           }
           currentOrder = num;
+          currentTicketId = record.ticket_id || null;
           document.getElementById("displayNum").textContent = "#" + num;
           document.getElementById("trackerCard").classList.add("visible");
           processDatabaseClocks();
@@ -1139,8 +1149,9 @@
                   clearInterval(pollInterval);
                   return;
                 }
-                const r = await fetchOrderRecord(currentOrder);
+                const r = await fetchOrderRecord(currentOrder, currentTicketId);
                 if (r) {
+                  if (r.ticket_id) currentTicketId = r.ticket_id;
                   updateUI(r.status);
                   processDatabaseClocks();
                   if (isArchivedOrder || isTerminal)
