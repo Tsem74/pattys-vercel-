@@ -36,13 +36,19 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
       }
+      html,
       body {
+        width: 100%;
+        height: 100%;
         background: #420a65;
         font-family: "FoodBuka", "Cairo", sans-serif;
         margin: 0;
         overflow: hidden;
       }
       #tv-scale-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 1920px;
         height: 1080px;
         transform-origin: top left;
@@ -570,26 +576,61 @@
       var DESIGN_W = 1920,
         DESIGN_H = 1080;
       var tvWrapper = document.getElementById("tv-scale-wrapper");
+
+      // Some TV / kiosk browsers report an incorrect (or momentarily 0x0)
+      // window size on first paint, before the real display size settles.
+      // Guard against acting on bogus dimensions, and self-correct on a
+      // schedule so the page never depends on a human clicking anything.
       function fitToScreen() {
-        var scale = Math.min(
-          window.innerWidth / DESIGN_W,
-          window.innerHeight / DESIGN_H,
-        );
+        var w = window.innerWidth,
+          h = window.innerHeight;
+        if (!w || !h) return; // bogus reading, skip until a real one arrives
+        var scale = Math.min(w / DESIGN_W, h / DESIGN_H);
         tvWrapper.style.transform = "scale(" + scale + ")";
       }
+
       fitToScreen();
       window.addEventListener("resize", fitToScreen);
+      window.addEventListener("orientationchange", fitToScreen);
+      window.addEventListener("load", fitToScreen);
+      document.addEventListener("DOMContentLoaded", fitToScreen);
       document.addEventListener("fullscreenchange", fitToScreen);
       document.addEventListener("webkitfullscreenchange", fitToScreen);
+      if (window.ResizeObserver) {
+        new ResizeObserver(fitToScreen).observe(document.documentElement);
+      }
 
+      // Burst of retries right after load: covers TV browsers whose
+      // reported window size takes a beat to become accurate, with no
+      // click required.
+      var retries = 0;
+      var burstTimer = setInterval(function () {
+        fitToScreen();
+        retries++;
+        if (retries > 20) clearInterval(burstTimer); // ~4s of retries
+      }, 200);
+
+      // Ongoing low-frequency safety net forever after: catches any TV
+      // that changes resolution/orientation without firing a resize event.
+      setInterval(fitToScreen, 3000);
+
+      // Best-effort fullscreen (hides browser chrome if any is present).
+      // This is *not* required for correct scaling above, so if the
+      // browser blocks programmatic fullscreen without a user gesture,
+      // the board still displays at the right size and position.
+      function tryFullscreen() {
+        try {
+          var el = document.documentElement;
+          if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        } catch (e) {}
+      }
+      tryFullscreen();
+      // Keep a click listener too, purely as a fallback for browsers that
+      // refuse programmatic fullscreen without a gesture — but it's no
+      // longer needed for the sizing to be correct.
       document.addEventListener("click", function requestFS() {
-        var el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        // Fallback in case this TV's browser doesn't fire a fullscreenchange
-        // or resize event promptly after entering fullscreen.
-        setTimeout(fitToScreen, 150);
-        setTimeout(fitToScreen, 500);
+        tryFullscreen();
         document.removeEventListener("click", requestFS);
       });
     </script>
