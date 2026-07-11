@@ -503,7 +503,7 @@
           // Preparing column: sorted by order number (stable position,
           // easy to scan while food is still cooking).
           const cooking = rows
-            .filter((o) => o.status === "Preparing Food")
+            .filter((o) => o.status !== "Ready for Pickup")
             .sort((a, b) => a.order_number - b.order_number)
             .map((o) => o.order_number);
 
